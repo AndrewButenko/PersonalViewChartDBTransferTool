@@ -8,8 +8,8 @@
     <ProjectGuid>{DCD36CE2-F839-4C49-B765-4FD2B00F134D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AButenko.PrivateViewsDashboardsTransferTool</RootNamespace>
-    <AssemblyName>AButenko.PrivateViewsDashboardsTransferTool</AssemblyName>
+    <RootNamespace>AButenko.PersonalViewsDashboardsTransferTool</RootNamespace>
+    <AssemblyName>AButenko.PersonalViewsDashboardsTransferTool</AssemblyName>
     <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -120,12 +120,19 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MyPlugin.cs" />
-    <Compile Include="MyPluginControl.cs">
+    <Compile Include="DataContract\PersonalChart.cs" />
+    <Compile Include="DataContract\PersonalDashboard.cs" />
+    <Compile Include="DataContract\PersonalRecordBase.cs" />
+    <Compile Include="DataContract\PersonalView.cs" />
+    <Compile Include="DataContract\Record.cs" />
+    <Compile Include="Enums.cs" />
+    <Compile Include="Extensions.cs" />
+    <Compile Include="PvdbTransferToolPlugin.cs" />
+    <Compile Include="PvdbTransferToolPluginControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="MyPluginControl.designer.cs">
-      <DependentUpon>MyPluginControl.cs</DependentUpon>
+    <Compile Include="PvdbTransferToolPluginControl.designer.cs">
+      <DependentUpon>PvdbTransferToolPluginControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings.cs" />
@@ -134,7 +141,16 @@
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="PvdbTransferToolPluginControl.resx">
+      <DependentUpon>PvdbTransferToolPluginControl.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>IF NOT EXIST "C:\Tools\XrmToolbox\Plugins\" mkdir "C:\Tools\XrmToolbox\Plugins\"
+move /Y $(TargetFileName) "C:\Tools\XrmToolbox\Plugins\"</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
