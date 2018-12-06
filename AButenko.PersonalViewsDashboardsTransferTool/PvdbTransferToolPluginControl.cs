@@ -306,7 +306,7 @@ namespace AButenko.PersonalViewsDashboardsTransferTool
                     catch (FaultException<OrganizationServiceFault> e)
                     {
                         var regex = new Regex(
-                            @"Principal user \(Id=(.*?), type=8\) is missing prvReadUserQuery privilege \(Id=(.*?)\)");
+                            @"(.*?)is missing prvReadUserQuery privilege(.*?)");
 
                         if (!regex.IsMatch(e.Message))
                         {
@@ -391,7 +391,7 @@ namespace AButenko.PersonalViewsDashboardsTransferTool
                     catch (FaultException<OrganizationServiceFault> e)
                     {
                         var regex = new Regex(
-                            @"Principal user \(Id=(.*?), type=8\) is missing prvReadUserQueryVisualizations privilege \(Id=(.*?)\)");
+                            @"(.*?)is missing prvReadUserQueryVisualizations privilege(.*?)");
 
                         if (!regex.IsMatch(e.Message))
                         {
@@ -474,7 +474,7 @@ namespace AButenko.PersonalViewsDashboardsTransferTool
                     catch (FaultException<OrganizationServiceFault> e)
                     {
                         var regex = new Regex(
-                            @"Principal user \(Id=(.*?), type=8\) is missing prvReadUserForm privilege \(Id=(.*?)\)");
+                            @"(.*?)is missing prvReadUserForm privilege(.*?)");
 
                         if (!regex.IsMatch(e.Message))
                         {
