@@ -305,10 +305,8 @@ namespace AButenko.PersonalViewsDashboardsTransferTool
                     }
                     catch (FaultException<OrganizationServiceFault> e)
                     {
-                        var regex = new Regex(
-                            @"(.*?)is missing prvReadUserQuery privilege(.*?)");
-
-                        if (!regex.IsMatch(e.Message))
+                        if (!e.Message.Contains("no roles are assigned to user") &&
+                            !e.Message.Contains("is missing prvReadUserQuery privilege"))
                         {
                             throw;
                         }
@@ -390,10 +388,8 @@ namespace AButenko.PersonalViewsDashboardsTransferTool
                     }
                     catch (FaultException<OrganizationServiceFault> e)
                     {
-                        var regex = new Regex(
-                            @"(.*?)is missing prvReadUserQueryVisualizations privilege(.*?)");
-
-                        if (!regex.IsMatch(e.Message))
+                        if (!e.Message.Contains("no roles are assigned to user") &&
+                            !e.Message.Contains("is missing prvReadUserQueryVisualizations privilege"))
                         {
                             throw;
                         }
@@ -473,10 +469,8 @@ namespace AButenko.PersonalViewsDashboardsTransferTool
                     }
                     catch (FaultException<OrganizationServiceFault> e)
                     {
-                        var regex = new Regex(
-                            @"(.*?)is missing prvReadUserForm privilege(.*?)");
-
-                        if (!regex.IsMatch(e.Message))
+                        if (!e.Message.Contains("no roles are assigned to user") &&
+                            !e.Message.Contains("is missing prvReadUserForm privilege"))
                         {
                             throw;
                         }
