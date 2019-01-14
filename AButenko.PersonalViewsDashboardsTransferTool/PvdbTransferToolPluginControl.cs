@@ -5,7 +5,6 @@ using System.ComponentModel;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ServiceModel;
-using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
@@ -19,7 +18,7 @@ using AButenko.PersonalViewsDashboardsTransferTool.DataContract;
 
 namespace AButenko.PersonalViewsDashboardsTransferTool
 {
-    public partial class PvdbTransferToolPluginControl : MultipleConnectionsPluginControlBase, IStatusBarMessager
+    public partial class PvdbTransferToolPluginControl : MultipleConnectionsPluginControlBase, IStatusBarMessenger
     {
         #region CTOR
 
@@ -143,7 +142,8 @@ namespace AButenko.PersonalViewsDashboardsTransferTool
             {
                 Message = "Migrating Personal Views",
                 Work = MigratePrivateViews,
-                AsyncArgument = (MigrationType)ddViewsMigrationType.SelectedIndex
+                AsyncArgument = (MigrationType)ddViewsMigrationType.SelectedIndex,
+                PostWorkCallBack = OnMigratePrivateViewsCompleted 
             });
         }
 
@@ -153,7 +153,8 @@ namespace AButenko.PersonalViewsDashboardsTransferTool
             {
                 Message = "Migrating Personal Charts",
                 Work = MigratePersonalCharts,
-                AsyncArgument = (MigrationType)ddPersonalChartsMigrationType.SelectedIndex
+                AsyncArgument = (MigrationType)ddPersonalChartsMigrationType.SelectedIndex,
+                PostWorkCallBack = OnMigratePersonalChartsCompleted
             });
         }
 
@@ -161,9 +162,10 @@ namespace AButenko.PersonalViewsDashboardsTransferTool
         {
             WorkAsync(new WorkAsyncInfo()
             {
-                Message = "Migrating Personal Pashboards",
+                Message = "Migrating Personal Dashboards",
                 Work = MigratePersonalDashboards,
-                AsyncArgument = (MigrationType)ddPersonalDashboardMigrationType.SelectedIndex
+                AsyncArgument = (MigrationType)ddPersonalDashboardMigrationType.SelectedIndex,
+                PostWorkCallBack = OnMigratePersonalDashboardsCompleted
             });
         }
 
@@ -359,6 +361,16 @@ namespace AButenko.PersonalViewsDashboardsTransferTool
             }
         }
 
+        private void OnMigratePrivateViewsCompleted(RunWorkerCompletedEventArgs args)
+        {
+            if (args.Error == null)
+            {
+                return;
+            }
+
+            ShowErrorNotification($"Can't migrate personal views - {args.Error.Message}", new Uri($"https://google.com/search?q={Uri.EscapeDataString(args.Error.Message)}"));
+        }
+
         private void RetrievePersonalCharts(BackgroundWorker worked, DoWorkEventArgs args)
         {
             var pc = new List<Entity>();
@@ -441,6 +453,16 @@ namespace AButenko.PersonalViewsDashboardsTransferTool
             }
         }
 
+        private void OnMigratePersonalChartsCompleted(RunWorkerCompletedEventArgs args)
+        {
+            if (args.Error == null)
+            {
+                return;
+            }
+
+            ShowErrorNotification($"Can't migrate personal charts - {args.Error.Message}", new Uri($"https://google.com/search?q={Uri.EscapeDataString(args.Error.Message)}"));
+        }
+
         private void RetrievePrivateDashboards(BackgroundWorker worked, DoWorkEventArgs args)
         {
             var pd = new List<Entity>();
@@ -509,6 +531,16 @@ namespace AButenko.PersonalViewsDashboardsTransferTool
                 dbNode.Tag = pd.RecordId;
                 dbNode.Checked = true;
             }
+        }
+
+        private void OnMigratePersonalDashboardsCompleted(RunWorkerCompletedEventArgs args)
+        {
+            if (args.Error == null)
+            {
+                return;
+            }
+
+            ShowErrorNotification($"Can't migrate personal dashboards - {args.Error.Message}", new Uri($"https://google.com/search?q={Uri.EscapeDataString(args.Error.Message)}"));
         }
 
         private void MigratePrivateViews(BackgroundWorker worked, DoWorkEventArgs args)

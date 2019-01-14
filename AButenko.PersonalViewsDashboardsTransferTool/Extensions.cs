@@ -122,7 +122,7 @@ namespace AButenko.PersonalViewsDashboardsTransferTool
 
             var columnsToCopy = columns;
 
-            if (columnsToCopy.Length != 0)
+            if (columnsToCopy.Length == 0)
             {
                 columnsToCopy = record.Attributes.Keys.ToArray();
             }

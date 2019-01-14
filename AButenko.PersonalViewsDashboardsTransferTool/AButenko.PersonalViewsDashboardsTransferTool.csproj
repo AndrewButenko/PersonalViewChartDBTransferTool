@@ -141,6 +141,7 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
+    <None Include="spkl.json" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="PvdbTransferToolPluginControl.resx">
