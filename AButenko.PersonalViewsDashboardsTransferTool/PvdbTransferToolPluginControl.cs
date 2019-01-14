@@ -703,7 +703,7 @@ namespace AButenko.PersonalViewsDashboardsTransferTool
 
                 destinationInstance.CallerId = destinationOwnerId.Value;
 
-                var dbCopy = db.Record.Copy("description", "formjson", "formxml", "istabletenabled", "name", "objecttypecode", "ownerid", "type", "userformid");
+                var dbCopy = db.Record.Copy("description", "formxml", "istabletenabled", "name", "objecttypecode", "ownerid", "type", "userformid");
 
                 dbCopy["ownerid"] = new EntityReference("systemuser", destinationOwnerId.Value);
 
