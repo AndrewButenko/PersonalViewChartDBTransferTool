@@ -15,6 +15,7 @@ using XrmToolBox.Extensibility;
 using XrmToolBox.Extensibility.Args;
 using XrmToolBox.Extensibility.Interfaces;
 using AButenko.PersonalViewsDashboardsTransferTool.DataContract;
+using Microsoft.Xrm.Tooling.Connector;
 
 namespace AButenko.PersonalViewsDashboardsTransferTool
 {
@@ -286,7 +287,7 @@ namespace AButenko.PersonalViewsDashboardsTransferTool
             mappings.Where(m => m.IsMigrate && m.EntityType == "systemuser").Select(m => m.SourceRecord).ToList().ForEach(
                 userId =>
                 {
-                    ((OrganizationServiceProxy) Service).CallerId = userId;
+                    ((CrmServiceClient) Service).CallerId = userId;
 
                     var viewsQuery = new QueryExpression("userquery")
                     {
@@ -300,6 +301,9 @@ namespace AButenko.PersonalViewsDashboardsTransferTool
                     viewsQuery.Criteria.AddCondition("ownerid", ConditionOperator.Equal, userId);
                     viewsQuery.Criteria.AddCondition("statecode", ConditionOperator.Equal, 0);
                     viewsQuery.Criteria.AddCondition("querytype", ConditionOperator.Equal, 0);
+
+                    viewsQuery.AddOrder("returnedtypecode", OrderType.Ascending);
+                    viewsQuery.AddOrder("name", OrderType.Ascending);
 
                     try
                     {
@@ -378,7 +382,7 @@ namespace AButenko.PersonalViewsDashboardsTransferTool
             mappings.Where(m => m.IsMigrate && m.EntityType == "systemuser").Select(m => m.SourceRecord).ToList().ForEach(
                 userId =>
                 {
-                    ((OrganizationServiceProxy)Service).CallerId = userId;
+                    ((CrmServiceClient)Service).CallerId = userId;
 
                     var chartsQuery = new QueryExpression("userqueryvisualization")
                     {
@@ -470,7 +474,7 @@ namespace AButenko.PersonalViewsDashboardsTransferTool
             mappings.Where(m => m.IsMigrate && m.EntityType == "systemuser").Select(m => m.SourceRecord).ToList().ForEach(
                 userId =>
                 {
-                    ((OrganizationServiceProxy)Service).CallerId = userId;
+                    ((CrmServiceClient)Service).CallerId = userId;
 
                     var dashboardsQuery = new QueryExpression("userform")
                     {
@@ -577,7 +581,7 @@ namespace AButenko.PersonalViewsDashboardsTransferTool
                     return;
                 }
 
-                ((OrganizationServiceProxy) Service).CallerId = sourceOwnerId;
+                ((CrmServiceClient) Service).CallerId = sourceOwnerId;
 
                 destinationInstance.CallerId = destinationOwnerId.Value;
 
@@ -638,7 +642,7 @@ namespace AButenko.PersonalViewsDashboardsTransferTool
                     return;
                 }
 
-                ((OrganizationServiceProxy)Service).CallerId = sourceOwnerId;
+                ((CrmServiceClient)Service).CallerId = sourceOwnerId;
 
                 destinationInstance.CallerId = destinationOwnerId.Value;
 
@@ -699,7 +703,7 @@ namespace AButenko.PersonalViewsDashboardsTransferTool
                     return;
                 }
 
-                ((OrganizationServiceProxy)Service).CallerId = sourceOwnerId;
+                ((CrmServiceClient)Service).CallerId = sourceOwnerId;
 
                 destinationInstance.CallerId = destinationOwnerId.Value;
 
