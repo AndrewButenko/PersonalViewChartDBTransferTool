@@ -1,21 +1,22 @@
 ﻿using System;
 using System.Linq;
 using System.Drawing;
+using System.ServiceModel;
 using System.ComponentModel;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.ServiceModel;
 using System.Windows.Forms;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
-using Microsoft.Xrm.Sdk.Client;
+using Microsoft.Xrm.Sdk.Metadata;
+using Microsoft.Xrm.Sdk.Messages;
 using Microsoft.Crm.Sdk.Messages;
+using Microsoft.Xrm.Tooling.Connector;
 using McTools.Xrm.Connection;
 using XrmToolBox.Extensibility;
 using XrmToolBox.Extensibility.Args;
 using XrmToolBox.Extensibility.Interfaces;
 using AButenko.PersonalViewsDashboardsTransferTool.DataContract;
-using Microsoft.Xrm.Tooling.Connector;
 
 namespace AButenko.PersonalViewsDashboardsTransferTool
 {
@@ -66,7 +67,7 @@ namespace AButenko.PersonalViewsDashboardsTransferTool
         {
             base.UpdateConnection(newService, detail, actionName, parameter);
 
-            if (actionName == string.Empty)
+            if (string.IsNullOrEmpty(actionName))
             {
                 SetSourceConnected();
             }
@@ -221,11 +222,20 @@ namespace AButenko.PersonalViewsDashboardsTransferTool
                 }
             };
 
-            teamsQuery.Criteria.AddCondition("teamtype", ConditionOperator.Equal, 0);
+            var teamEntityMetadata = (RetrieveEntityResponse)service.Execute(new RetrieveEntityRequest()
+            {
+                EntityFilters = EntityFilters.Attributes,
+                LogicalName = "team"
+            });
+
+            if (teamEntityMetadata.EntityMetadata.Attributes.Any(a =>
+                "teamtype".Equals(a.LogicalName, StringComparison.InvariantCultureIgnoreCase)))
+            {
+                teamsQuery.Criteria.AddCondition("teamtype", ConditionOperator.In, 0, 2, 3);
+            }
+
             teamsQuery.AddOrder("name", OrderType.Ascending);
-
             allRecords.AddRange(service.RetrieveAll(teamsQuery));
-
             return allRecords;
         }
 
@@ -246,8 +256,7 @@ namespace AButenko.PersonalViewsDashboardsTransferTool
         private void RetrieveUsers(BackgroundWorker worked, DoWorkEventArgs args)
         {
             var sr = RetrieveRecords(Service);
-            var dr = RetrieveRecords(AdditionalConnectionDetails[AdditionalConnectionDetails.Count - 1]
-                .GetCrmServiceClient(true));
+            var dr = RetrieveRecords(AdditionalConnectionDetails[AdditionalConnectionDetails.Count - 1].GetCrmServiceClient());
 
             args.Result = new object[] { sr, dr };
         }
@@ -287,7 +296,7 @@ namespace AButenko.PersonalViewsDashboardsTransferTool
             mappings.Where(m => m.IsMigrate && m.EntityType == "systemuser").Select(m => m.SourceRecord).ToList().ForEach(
                 userId =>
                 {
-                    ((CrmServiceClient) Service).CallerId = userId;
+                    ((CrmServiceClient)Service).CallerId = userId;
 
                     var viewsQuery = new QueryExpression("userquery")
                     {
@@ -312,7 +321,9 @@ namespace AButenko.PersonalViewsDashboardsTransferTool
                     catch (FaultException<OrganizationServiceFault> e)
                     {
                         if (!e.Message.Contains("no roles are assigned to user") &&
-                            !e.Message.Contains("is missing prvReadUserQuery privilege"))
+                            !e.Message.Contains("is missing prvReadUserQuery privilege") &&
+                            !(e.Message.Contains("The user with SystemUserId=") && e.Message.Contains("is not licensed, and its SystemUserAccessMode=0 is not either of (NonInteractive=4, SetupUser=1)")) &&
+                            !e.Message.Contains("has not been assigned any roles. They need a role with the prvReadUserQuery privilege."))
                         {
                             throw;
                         }
@@ -405,7 +416,8 @@ namespace AButenko.PersonalViewsDashboardsTransferTool
                     catch (FaultException<OrganizationServiceFault> e)
                     {
                         if (!e.Message.Contains("no roles are assigned to user") &&
-                            !e.Message.Contains("is missing prvReadUserQueryVisualizations privilege"))
+                            !e.Message.Contains("is missing prvReadUserQueryVisualizations privilege") &&
+                            !e.Message.Contains("has not been assigned any roles. They need a role with the prvReadUserQueryVisualizations privilege."))
                         {
                             throw;
                         }
@@ -496,7 +508,8 @@ namespace AButenko.PersonalViewsDashboardsTransferTool
                     catch (FaultException<OrganizationServiceFault> e)
                     {
                         if (!e.Message.Contains("no roles are assigned to user") &&
-                            !e.Message.Contains("is missing prvReadUserForm privilege"))
+                            !e.Message.Contains("is missing prvReadUserForm privilege") &&
+                            !e.Message.Contains("has not been assigned any roles. They need a role with the prvReadUserForm privilege."))
                         {
                             throw;
                         }
@@ -550,7 +563,7 @@ namespace AButenko.PersonalViewsDashboardsTransferTool
         private void MigratePrivateViews(BackgroundWorker worked, DoWorkEventArgs args)
         {
             var destinationInstance = AdditionalConnectionDetails[AdditionalConnectionDetails.Count - 1]
-                .GetCrmServiceClient(true);
+                .GetCrmServiceClient();
 
             var selectedViews = personalViews.Where(r => r.IsSelected).ToList();
 
@@ -581,7 +594,7 @@ namespace AButenko.PersonalViewsDashboardsTransferTool
                     return;
                 }
 
-                ((CrmServiceClient) Service).CallerId = sourceOwnerId;
+                ((CrmServiceClient)Service).CallerId = sourceOwnerId;
 
                 destinationInstance.CallerId = destinationOwnerId.Value;
 
@@ -627,7 +640,7 @@ namespace AButenko.PersonalViewsDashboardsTransferTool
         private void MigratePersonalCharts(BackgroundWorker worked, DoWorkEventArgs args)
         {
             var destinationInstance = AdditionalConnectionDetails[AdditionalConnectionDetails.Count - 1]
-                .GetCrmServiceClient(true);
+                .GetCrmServiceClient();
 
             var selectedCharts = personalCharts.Where(r => r.IsSelected).ToList();
 
@@ -688,7 +701,7 @@ namespace AButenko.PersonalViewsDashboardsTransferTool
         private void MigratePersonalDashboards(BackgroundWorker worked, DoWorkEventArgs args)
         {
             var destinationInstance = AdditionalConnectionDetails[AdditionalConnectionDetails.Count - 1]
-                .GetCrmServiceClient(true);
+                .GetCrmServiceClient();
 
             var selectedDashboards = personalDashboards.Where(r => r.IsSelected).ToList();
 

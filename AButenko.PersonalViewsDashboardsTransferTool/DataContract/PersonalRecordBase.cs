@@ -13,7 +13,7 @@ namespace AButenko.PersonalViewsDashboardsTransferTool.DataContract
             RecordId = record.Id;
             IsSelected = true;
             Name = record.GetAttributeValue<string>("name");
-            Owner = record.GetAttributeValue<EntityReference>("ownerid").Name;
+            Owner = $"{record.GetAttributeValue<EntityReference>("ownerid").Name}({record.GetAttributeValue<EntityReference>("ownerid").LogicalName})";
             OwnerId = record.GetAttributeValue<EntityReference>("ownerid").Id;
         }
 
